@@ -9,7 +9,7 @@ jobs:
   deploy:
     uses: TheClusterFlux/central-workflows/.github/workflows/deploy.yaml@main
     with:
-      dockerhub-username: ${{ secrets.DOCKERHUB_USERNAME }}
-      dockerhub-password: ${{ secrets.DOCKERHUB_PASSWORD }}
-      kubernetes-context: ${{ secrets.KUBERNETES_CONTEXT }}
+      dockerhub-username: ${{ github.secret_source.DOCKERHUB_USERNAME }}
+      dockerhub-password: ${{ github.secret_source.DOCKERHUB_PASSWORD }}
+      kubernetes-context: ${{ github.secret_source.KUBERNETES_CONTEXT }}
       
