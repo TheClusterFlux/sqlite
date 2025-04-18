@@ -7,7 +7,7 @@ on:
 
 jobs:
   deploy:
-    uses: TheClusterFlux/central-workflows/deploy.yaml@main
+    uses: TheClusterFlux/central-workflows/.github/workflows/deploy.yaml@main
     with:
       docker_image_name: your-dockerhub-username/your-service-name
       deployment_file: deployment.yaml
