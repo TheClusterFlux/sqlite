@@ -8,4 +8,4 @@ on:
 jobs:
   deploy:
     uses: TheClusterFlux/central-workflows/.github/workflows/deploy.yaml@main
-    
+  
