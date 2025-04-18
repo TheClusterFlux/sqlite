@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Status</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: #4CAF50;
+        }
+        h2 {
+            color: #333;
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 5px;
+        }
+        p {
+            font-size: 1.1em;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        #status {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Database Status</h1>
+    <div id="status"></div>
+    <script>
+        async function fetchStatus() {
+            try {
+                const response = await fetch('/status');
+                const data = await response.json();
+                const statusDiv = document.getElementById('status');
+                if (data.status === 'ok') {
+                    let html = `<p>Database is OK. Tables:</p>`;
+                    Object.keys(data.tables).forEach(tableName => {
+                        const table = data.tables[tableName];
+                        html += `<h2>${tableName}</h2>`;
+                        html += `<p>Record Count: ${table.record_count}</p>`;
+                        html += `<p>Total Size: ${table.total_size} bytes</p>`;
+                        html += `<table><tr>`;
+                        table.columns.forEach(column => {
+                            html += `<th>${column}</th>`;
+                        });
+                        html += `</tr>`;
+                        html += `</table>`;
+                    });
+                    statusDiv.innerHTML = html;
+                } else {
+                    statusDiv.innerHTML = `<p>Error: ${data.error}</p>`;
+                }
+            } catch (error) {
+                document.getElementById('status').innerHTML = `<p>Error fetching status: ${error.message}</p>`;
+            }
+        }
+
+        window.onload = fetchStatus;
+    </script>
+</body>
+</html>

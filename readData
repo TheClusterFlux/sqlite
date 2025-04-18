@@ -1,0 +1,36 @@
+import sqlite3
+
+# Connect to the SQLite database file stored in the PVC
+conn = sqlite3.connect('/app/data/database.db')  # Replace with the actual path
+
+# Create a cursor object to interact with the database
+cursor = conn.cursor()
+
+# List all tables in the database
+cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+tables = cursor.fetchall()
+print("Tables:", tables)
+
+# Fetch data from a specific table (replace <table-name> with your table)
+cursor.execute("SELECT * FROM chat_instances;")
+rows = cursor.fetchall()
+
+# Print the rows
+for row in rows:
+    print(row)
+
+cursor.execute("SELECT * FROM chat_users;")
+rows = cursor.fetchall()
+
+# Print the rows
+for row in rows:
+    print(row)
+# Close the connection
+
+cursor.execute("SELECT * FROM opt_in_users;")
+rows = cursor.fetchall()
+
+
+for row in rows:
+    print(row)
+conn.close()
