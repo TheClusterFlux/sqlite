@@ -1,0 +1,91 @@
+# sqlite-pv.yaml
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: sqlite-pv
+spec:
+  capacity:
+    storage: 5Gi  # Adjust the size as needed
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /mnt/data/sqlite  # Directory where SQLite will store its file on the node
+  persistentVolumeReclaimPolicy: Retain
+---
+# sqlite-pvc.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: sqlite-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi  # Must match the storage requested in PV
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sqlite
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sqlite
+  template:
+    metadata:
+      labels:
+        app: sqlite
+    spec:
+      containers:
+        - name: sqlite
+          image: docker.io/keanuwatts/theclusterflux:sqlite
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: sqlite-storage
+              mountPath: /app/data  
+      imagePullSecrets:
+        - name: dockerhub-secret
+      volumes:
+        - name: sqlite-storage
+          persistentVolumeClaim:
+            claimName: sqlite-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sqlite
+spec:
+  selector:
+    app: sqlite
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: sqlite
+  namespace: default
+  annotations:
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - sqlite.theclusterflux.com
+    secretName: theclusterflux
+  rules:
+  - host: sqlite.theclusterflux.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: sqlite
+            port:
+              number: 8080
